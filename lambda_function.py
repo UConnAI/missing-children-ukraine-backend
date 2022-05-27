@@ -1,13 +1,11 @@
-import json
 from typing import Any, Dict
-
-import boto3
 import json
 from datetime import datetime
 
-from pprint import pprint
-
 from manager.load_config import CONFIG
+from apihandlers import submit_report
+
+from pprint import pprint
 
 
 def lambda_handler(event: Any, context: Any):
@@ -17,18 +15,15 @@ def lambda_handler(event: Any, context: Any):
     :param event: Event can be anything the calling service decides to pass in
     :param context: the context is an object describing what the context of the call is. It's typing is a special AWS type
     """
-    print("---------------------------------------------")
-    print("#")
-    print("#")
-    print(datetime.now())
-    print("#")
-    print("#")
-    print("---------------------------------------------")
-    pprint(event)
-    print("#")
-    print("#")
-    pprint(context)
-    print("---------------------------------------------")
+
+    print("STARTING LAMBDAAAAAAAAAAAAAAAA")
+    if event["requestContext"]["httpMethod"] == "POST":
+        print("INTIIALL IFFFFFFFF RESOLVED")
+        if event["requestContext"]["resourcePath"] == "/submitreport":
+            print("INITIATING ZTHE PARSE")
+            n_event = submit_report.submitReport(event, context)
+
+            pprint(n_event)
 
     return {
         'statusCode': 200,
