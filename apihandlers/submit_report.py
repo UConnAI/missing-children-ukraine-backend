@@ -11,8 +11,6 @@ def submitReport(event: Any, context: Any):
     :param context: the context object descrbing the context of the call
     """
     body = json.loads(event["body"])
-    print("SUCCESSFULKY PARSED THE JSON DATA")
     new_event = models.Event.from_dict(body)
-    print("CREATED NEW EVENT")
 
     return new_event

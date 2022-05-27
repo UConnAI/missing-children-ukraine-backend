@@ -16,11 +16,8 @@ def lambda_handler(event: Any, context: Any):
     :param context: the context is an object describing what the context of the call is. It's typing is a special AWS type
     """
 
-    print("STARTING LAMBDAAAAAAAAAAAAAAAA")
     if event["requestContext"]["httpMethod"] == "POST":
-        print("INTIIALL IFFFFFFFF RESOLVED")
         if event["requestContext"]["resourcePath"] == "/submitreport":
-            print("INITIATING ZTHE PARSE")
             n_event = submit_report.submitReport(event, context)
 
             pprint(n_event)

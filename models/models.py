@@ -45,18 +45,12 @@ class Reporter:
         :return: a properly populated Reporter class
         """
 
-        print("FROM DICT REPORTER")
-
         current_date = pytz.utc.localize(datetime.today())
-
-        print("LCOALIZED DATETIME")
 
         # Validating date of birth
         date_of_birth = pytz.utc.localize(datetime.strptime(d["date_of_birth"], "%Y/%m/%d"))
         if date_of_birth > current_date:
             raise ValueError("Birth date out of range")
-
-        print("EVALUATED DATE FO BIRTH")
 
         return Reporter(
             first_name=d["first_name"],
@@ -111,68 +105,47 @@ class Child:
         :return: a Child class with the information from the dictionary
         """
 
-        print("FROM DICT CHILDREN")
-
         global _blood_types
 
         current_date = pytz.utc.localize(datetime.today())
-
-        print("LCOALIZED CUR DATE")
 
         # Validate birth date
         date_of_birth = pytz.utc.localize(datetime.strptime(d["date_of_birth"], "%Y/%m/%d"))
         if date_of_birth > current_date:
             raise ValueError("Birth date out of range")
 
-        print("EVLUATED DATE OF BIRTH")
-
         # Check valid gender
         if not (d["gender"] == "male" or d["gender"] == "female"):
             raise ValueError("No valid gender specified")
-
-        print("EVALUATED GENDER")
 
         # Check valid blood type
         if "blood_type" in d:
             if not d["blood_type"] in _blood_types:
                 raise ValueError("Invalid blood type specified")
 
-        print("EVALUATED BLOOD TYPE")
-
         # Check last_seen dictionary
         last_seen = {}
         if "date" in d["last_seen"] and "country" in d["last_seen"] and "city" in d["last_seen"]:
             lastseen_date = datetime.strptime(d["last_seen"]["date"], "%Y/%m/%d %H:%M:%S")
 
-            print("VERIFYING LOCATION DATA")
             # Verify location, get latitude and longitude and localize lastseen_date to the timezone in reported ares
             geolocator = Nominatim(user_agent="http")
-            print("A")
             location = geolocator.geocode(f"{d['last_seen']['city']}, {d['last_seen']['country']}")
-            print("B")
             obj = TimezoneFinder()
-            print("C")
             local_timezone = obj.timezone_at(lng=location.longitude, lat=location.latitude)
-            print("D")
             local_timezone = pytz.timezone(local_timezone)
-            print("E")
             lastseen_date = local_timezone.localize(lastseen_date)
-
-            print("LCOATION DATA VERIFIED")
 
             # Verify that the last seen date is within the correct range
             if lastseen_date <= date_of_birth or lastseen_date >= current_date:
                 raise ValueError("Invalid last seen date")
 
-            print("VERIFIED LAST SEEN DATE")
             # After data has been verified and preprocessed save
             last_seen = {
                 "date": lastseen_date,
                 "country": d["last_seen"]["country"],
                 "city": d["last_seen"]["city"]
             }
-
-        print("RETURNING CHILD")
 
         return Child(
             first_name=d["first_name"],
