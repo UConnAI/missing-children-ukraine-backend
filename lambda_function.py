@@ -4,6 +4,7 @@ from datetime import datetime
 
 from manager.load_config import CONFIG
 from apihandlers import submit_report
+from clients.mongodb.mongo_client import MongoClient
 
 from pprint import pprint
 
@@ -20,7 +21,26 @@ def lambda_handler(event: Any, context: Any):
         if event["requestContext"]["resourcePath"] == "/submitreport":
             n_event = submit_report.submitReport(event, context)
 
-            pprint(n_event)
+            mc = None
+            if CONFIG["MODE"] == "LOCAL":
+                mc = MongoClient(
+                    user=CONFIG["MONGO_USER"],
+                    password=CONFIG["MONGO_PASSWORD"],
+                    database=CONFIG["MONGO_DATABASE"],
+                    atlas_host_name=CONFIG["ATLAS_HOST_NAME"]
+                )
+            elif CONFIG["MODE"] == "LAMBDAS":
+                mc = MongoClient(
+                    user=None,
+                    password=None,
+                    database=CONFIG["MONGO_DATABASE"],
+                    atlas_host_name=CONFIG["ATLAS_HOST_NAME"],
+                    mode=CONFIG["MODE"]
+                )
+
+            print("#")
+            print("#")
+            print(mc)
 
     return {
         'statusCode': 200,

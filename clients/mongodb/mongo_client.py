@@ -3,29 +3,35 @@ import pymongo
 
 #Mongo client
 class MongoClient():
-    def __init__(self, user: str, password: str, database: str):
+    def __init__(self, user: str, password: str, database: str, atlas_host_name: str, mode: str="LOCAL"):
         """
         Initiate the pymongo to use with the MongoClient
 
         :param user: the mongo user to authenticate
         :param password: the mongo password to authenticate
         :param database: the database to write to
+        :param mode: the mode to run the client on (specific for LAMBDAS mode to run on iam auth)
         """
 
-        #encode the password into url
-        # pass_urlencoded = urllib.parse.quote(password)
+        # initialize empty client and base header parameters
+        self.client = None
+        base_header_params = "retryWrites=true&w=majority"
 
-        #Setup the pymongo mongo client
-        # self.client = pymongo.MongoClient(
-        #     f"mongodb+srv://{user}:{pass_urlencoded}@missingchildrenukraine.nzlsq.mongodb.net/{database}?retryWrites=true&w=majority"
-        # )
-        aws_arn = "arn:aws:iam::240357374981:role/service-role/missingChildrenBackend-role-6nltq0fh"
-        self.client = pymongo.MongoClient(
-            f"mongodb+srv://missingchildrenukraine.nzlsq.mongodb.net/{database}?authSource=%24external&authMechanism=MONGODB-AWS&retryWrites=true&w=majority"
-        )
+        if mode == "LAMBDAS":
+            # Select the authorization params as aws iam
+            aws_auth_params = "authSource=%24external&authMechanism=MONGODB-AWS"
 
-        self.db = self.client[database]
-        self.db["MissingReports"]
+            # Setup the pymongo client with aws iam auth
+            self.client = pymongo.MongoClient(
+                f"mongodb+srv://{atlas_host_name}/?{aws_auth_params}&{base_header_params}"
+            )
+        elif mode == "LOCAL":
+            #encode the password into url
+            pass_urlencoded = urllib.parse.quote(password)
 
-        for i in self.db.find({"address": "ssss"}):
-            print(i)
+            #Setup the pymongo mongo client
+            self.client = pymongo.MongoClient(
+                f"mongodb+srv://{user}:{pass_urlencoded}@{atlas_host_name}/?retryWrites=true&w=majority"
+            )
+
+        print(self.client[database].list_collection_names())
