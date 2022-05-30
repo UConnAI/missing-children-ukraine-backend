@@ -1,6 +1,8 @@
 import urllib.parse
 import pymongo
 
+from typing import Dict, Any
+
 #Mongo client
 class MongoClient():
     def __init__(self, user: str, password: str, database: str, atlas_host_name: str, mode: str="LOCAL"):
@@ -34,4 +36,16 @@ class MongoClient():
                 f"mongodb+srv://{user}:{pass_urlencoded}@{atlas_host_name}/?retryWrites=true&w=majority"
             )
 
-        print(self.client[database].list_collection_names())
+        self.db = self.client[database]
+
+    def saveReport(self, report: Dict[str, Any]):
+        """
+        Save the report to the database on mongo atlas
+
+        :param report: the report to be saved on the database
+        """
+
+        missingReports = self.db["MissingReports"]
+        missingReports.insert_one(report)
+
+        return
