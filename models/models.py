@@ -36,8 +36,14 @@ class Reporter:
     phone_number_2: Optional[str] = None
     email: Optional[str] = None
 
-    @staticmethod
-    def from_dict(d: Dict[str, Any]):
+    def to_dict(self):
+        """
+        Return dictionary repr of the reporter class
+        """
+        return self.__dict__
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]):
         """
         Generate a Reporter class from a dictionary
 
@@ -52,7 +58,7 @@ class Reporter:
         if date_of_birth > current_date:
             raise ValueError("Birth date out of range")
 
-        return Reporter(
+        return cls(
             first_name=d["first_name"],
             last_name=d["last_name"],
             translated_name=d["translated_name"],
@@ -96,8 +102,14 @@ class Child:
     comment: Optional[str] = None
     picture: Optional[Any] = None
 
-    @staticmethod
-    def from_dict(d: Dict[str, Any]):
+    def to_dict(self):
+        """
+        Return dictionary of Child class
+        """
+        return self.__dict__
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]):
         """
         Create a Child class from the specific dictionary
 
@@ -147,7 +159,7 @@ class Child:
                 "city": d["last_seen"]["city"]
             }
 
-        return Child(
+        return cls(
             first_name=d["first_name"],
             last_name=d["last_name"],
             translated_name=d["translated_name"] if "translated_name" in d and d["translated_name"] else None,
@@ -163,29 +175,35 @@ class Child:
 
 
 @dataclass
-class Event:
+class Report:
     """
-    Dataclass for information about the event
+    Dataclass for information about the report
 
-    :param event_type: Type of event
     :param reporter: Reporter of the event
     :param children: Children involved in the event
     """
 
-    event_type: int
     reporter: Reporter
     children: List[Child]
 
-    @staticmethod
-    def from_dict(d: Dict[str, Any]):
+    def to_dict(self):
         """
-        Creates an Event Class from input dictionary
+        Return the report class as a nest of dictionaries
+        """
+        return {
+            'reporter': self.reporter.to_dict(),
+            'children': [child_obj.to_dict() for child_obj in self.children]
+        }
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]):
+        """
+        Creates an Report Class from input dictionary
 
         :param d: input dictionary with the information about the event
-        :return: A properly populated Event class
+        :return: A properly populated Report class
         """
-        return Event(
-            event_type=d["event_type"],
+        return cls(
             reporter=Reporter.from_dict(d["reporter"]),
             children=[Child.from_dict(c) for c in d["children"]],
         )
